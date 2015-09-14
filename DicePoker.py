@@ -24,6 +24,7 @@ import os
 def main():
     firstPlayer = Player()
     secondPlayer = Player()
+    setPlayerNames(firstPlayer, secondPlayer)
     pot = wager(False, 0)  # Players bet some initial amount
     # Players roll 5 dice to get their initial hands
     displayFirstHand(firstPlayer, secondPlayer)
@@ -40,6 +41,15 @@ def main():
     # The winner is determined, and the pot is awarded to them
     determineWinner(firstPlayer, secondPlayer, pot)
     raw_input('Hit enter to exit')
+
+
+def setPlayerNames(firstPlayer, secondPlayer):
+    firstPlayer.name = raw_input(str.format("Enter a name for the first player, or hit enter to keep the default: "))
+    if firstPlayer.name == "":
+        firstPlayer.name = "Player 1"
+    secondPlayer.name = raw_input(str.format("Enter a name for the second player, or hit enter to keep the default: "))
+    if secondPlayer.name == "":
+        secondPlayer.name = "Player 2"
 
 def wager(isRaise, potAmount):
     if isRaise:
@@ -69,14 +79,14 @@ def chooseDiceToDrop(player):
     choosingDice = True
     while (choosingDice):
         os.system('cls')
-        print(str.format('{0}, enter the number corresponding to the die that you want to keep or drop and hit enter.'
+        print(str.format('{0}, enter the number corresponding to the die that you want to keep or re-roll and hit enter.'
             ' \n Repeat until you only have the dice you want to keep', player.name))
         i = 1
         for die in player.hand.dice:
             if die.kept == True:
                 print(str.format('{0}. {1}  Keep', i, die.value))
             else:
-                print(str.format('{0}. {1}  Drop', i, die.value))
+                print(str.format('{0}. {1}  Roll', i, die.value))
             i = i + 1
         print('6. Done choosing')
         strChosenDie = raw_input()
@@ -99,6 +109,7 @@ def determineWinner(firstPlayer, secondPlayer, pot):
         print(str.format('{0} wins with a {1}, taking {2} chips in victory', secondPlayer.name, secondPlayer.hand.handName, pot))
     else:
         print('The round is a draw')
+
 
 def validateYesNo(stringToValidate):
     Validated = False
@@ -138,6 +149,7 @@ class Player:
         Player.playerNum += 1
         self.hand = Hand()
 
+
 class Die:
     """A six-sided die"""
 
@@ -156,19 +168,23 @@ class Hand:
         self.dice = []
         self.setStartingHand()
 
+
     def setStartingHand(self):
         for num in range(0,5):
             die = Die()
             self.dice.append(die)
 
+
     def rollHand(self):
         for die in self.dice:
             die.roll
+
 
     def rollNonKeptDice(self):
         for die in self.dice:
             if die.kept == False:
                 die.roll()
+
 
     def displayHand(self):
         handDisplayString = ''
@@ -176,11 +192,13 @@ class Hand:
             handDisplayString += str(die.value) + " "
         return handDisplayString
 
+
     def getDiceValues(self):
         diceValues = []
         for die in self.dice:
             diceValues.append(die.value)
         return diceValues
+
 
     def determineHandValue(self):
         score = 0
@@ -232,6 +250,7 @@ class Hand:
 
         self.value = score
 
+
     def breakTies(self, diceOccurrences, numOccurrences):
         tieBreakerScore = 0
         if diceOccurrences[5] == numOccurrences:
@@ -246,7 +265,6 @@ class Hand:
             tieBreakerScore = 2
         else:
             tieBreakerScore = 1
-
         return tieBreakerScore
 
 main()
