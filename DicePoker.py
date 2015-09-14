@@ -25,22 +25,27 @@ def main():
     firstPlayer = Player()
     secondPlayer = Player()
     setPlayerNames(firstPlayer, secondPlayer)
-    pot = wager(False, 0)  # Players bet some initial amount
-    # Players roll 5 dice to get their initial hands
-    displayFirstHand(firstPlayer, secondPlayer)
-    pot = wager(True, pot)  # Player can increase their wager after seeing their first hand
-    # Players decide which dice to drop, and keep the rest
-    chooseDiceToDrop(firstPlayer)
-    chooseDiceToDrop(secondPlayer)
-    # Dice that were not kept are re-rolled
-    firstPlayer.hand.rollNonKeptDice()
-    secondPlayer.hand.rollNonKeptDice()
-    # The final hand and its value are displayed
-    print(str.format("{0}'s final hand is {1}", firstPlayer.name, firstPlayer.hand.displayHand()))
-    print(str.format("{0}'s final hand is {1}", secondPlayer.name, secondPlayer.hand.displayHand()))
-    # The winner is determined, and the pot is awarded to them
-    determineWinner(firstPlayer, secondPlayer, pot)
-    raw_input('Hit enter to exit')
+    keepPlaying = True
+    while keepPlaying == True:
+        pot = wager(False, 0)  # Players bet some initial amount
+        # Players roll 5 dice to get their initial hands
+        rollFirstHand(firstPlayer, secondPlayer)
+        pot = wager(True, pot)  # Player can increase their wager after seeing their first hand
+        # Players decide which dice to drop, and keep the rest
+        chooseDiceToDrop(firstPlayer)
+        chooseDiceToDrop(secondPlayer)
+        # Dice that were not kept are re-rolled
+        firstPlayer.hand.rollNonKeptDice()
+        secondPlayer.hand.rollNonKeptDice()
+        # The final hand and its value are displayed
+        print(str.format("{0}'s final hand is {1}", firstPlayer.name, firstPlayer.hand.displayHand()))
+        print(str.format("{0}'s final hand is {1}", secondPlayer.name, secondPlayer.hand.displayHand()))
+        # The winner is determined, and the pot is awarded to them
+        determineWinner(firstPlayer, secondPlayer, pot)
+        shouldContinue = raw_input('Hit enter to exit, or enter in anything else to continue ')
+        os.system('cls')
+        if shouldContinue == "":
+            keepPlaying = False
 
 
 def setPlayerNames(firstPlayer, secondPlayer):
@@ -56,22 +61,21 @@ def wager(isRaise, potAmount):
         wantToRaise = raw_input("Do you want to raise? (Y/N) ")
         wantToRaise = validateYesNo(wantToRaise)
         if wantToRaise == "Y":
-            strRaiseAmount = raw_input("How many chips do you want to raise? ")  # Validate it's a positive integer
+            strRaiseAmount = raw_input("How many chips do you want to raise? ")
             raiseAmount = validateInteger(strRaiseAmount)
             potAmount = potAmount + 2 * raiseAmount
-
     else:
-        # Amount must be a positive integer
-        strWagerAmount = raw_input("How many chips do you want to wager? ")  # Validate it's a positive integer
+        strWagerAmount = raw_input("How many chips do you want to wager? ")
         wagerAmount = validateInteger(strWagerAmount)
         potAmount = wagerAmount * 2
         print(str.format('Opponent accepts your wager, pot is at {0} chips', potAmount))
-
     return potAmount
+    #TODO: Add a minimum wager; allow non-raising player to either take the wager or forfeit the round.
 
-
-def displayFirstHand(firstPlayer, secondPlayer):
+def rollFirstHand(firstPlayer, secondPlayer):
+    firstPlayer.hand.rollHand()
     print(str.format("{0} rolled: {1}", firstPlayer.name, firstPlayer.hand.displayHand()))
+    secondPlayer.hand.rollHand()
     print(str.format("{0} rolled: {1}", secondPlayer.name, secondPlayer.hand.displayHand()))
 
 
@@ -93,6 +97,7 @@ def chooseDiceToDrop(player):
         chosenDie = validateInteger(strChosenDie, 1, 6)
         if chosenDie == i:
             choosingDice = False
+            os.system('cls')
         else:
             if player.hand.dice[chosenDie - 1].kept == True:
                 player.hand.dice[chosenDie - 1].kept = False
@@ -177,7 +182,8 @@ class Hand:
 
     def rollHand(self):
         for die in self.dice:
-            die.roll
+            die.roll()
+            die.kept = True
 
 
     def rollNonKeptDice(self):
@@ -266,5 +272,6 @@ class Hand:
         else:
             tieBreakerScore = 1
         return tieBreakerScore
+    #TODO: Break secondary ties, e.g., 3,3,3,3,2 winning over 3,3,3,3,1. This would also resolve ties between two hands of nothing
 
 main()
