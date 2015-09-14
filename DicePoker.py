@@ -66,33 +66,37 @@ def displayFirstHand(firstPlayer, secondPlayer):
 
 
 def chooseDiceToDrop(player):
-    choosingDiceToDrop = True
-    while (choosingDiceToDrop):
+    choosingDice = True
+    while (choosingDice):
         os.system('cls')
-        print(str.format('{0}, enter the number corresponding to the die that you want to discard and hit enter.'
-            ' Repeat until you only have the dice you want to keep', player.name))
+        print(str.format('{0}, enter the number corresponding to the die that you want to keep or drop and hit enter.'
+            ' \n Repeat until you only have the dice you want to keep', player.name))
         i = 1
         for die in player.hand.dice:
             if die.kept == True:
-                print(str.format('{0}. {1}', i, die.value))
-                i = i + 1
-        print(str.format('{0}. Keep the rest', i))
-        strdieToDrop = raw_input()
-        dieToDrop = validateInteger(strdieToDrop, 1, 6)
-        if (dieToDrop == i):
-            choosingDiceToDrop = False
+                print(str.format('{0}. {1}  Keep', i, die.value))
+            else:
+                print(str.format('{0}. {1}  Drop', i, die.value))
+            i = i + 1
+        print('6. Done choosing')
+        strChosenDie = raw_input()
+        chosenDie = validateInteger(strChosenDie, 1, 6)
+        if chosenDie == i:
+            choosingDice = False
         else:
-            player.hand.dice[dieToDrop - 1].kept = False
-            player.hand.dice.append(player.hand.dice[dieToDrop - 1])
-            del player.hand.dice[dieToDrop - 1]
+            if player.hand.dice[chosenDie - 1].kept == True:
+                player.hand.dice[chosenDie - 1].kept = False
+            else:
+                player.hand.dice[chosenDie - 1].kept = True
+
 
 def determineWinner(firstPlayer, secondPlayer, pot):
     firstPlayer.hand.determineHandValue()
     secondPlayer.hand.determineHandValue()
     if firstPlayer.hand.value > secondPlayer.hand.value:
-        print(str.format('{0} wins, taking {1} chips in victory', firstPlayer.name, pot))
+        print(str.format('{0} wins with a {1}, taking {2} chips in victory', firstPlayer.name, firstPlayer.hand.handName, pot))
     elif firstPlayer.hand.value < secondPlayer.hand.value:
-        print(str.format('{0} wins, taking {1} chips in victory', secondPlayer.name, pot))
+        print(str.format('{0} wins with a {1}, taking {2} chips in victory', secondPlayer.name, secondPlayer.hand.handName, pot))
     else:
         print('The round is a draw')
 
@@ -190,31 +194,40 @@ class Hand:
         diceOccurrences = [num1s, num2s, num3s, num4s, num5s, num6s]
         # 5 of a kind is the best hand, higher dice numbers break ties
         if 5 in diceOccurrences:
+            self.handName = "five of a kind"
             score = 80 + self.breakTies(diceOccurrences, 5)
         # 4 of a kind is the second best hand, higher dice numbers break ties
         elif 4 in diceOccurrences:
+            self.handName = "four of a kind"
             score = 70 + self.breakTies(diceOccurrences, 4)
         # full house (3 of one number and 2 of another) is the next best hand)
         # higher 3 of a kinds break ties
         elif (2 in diceOccurrences) and (3 in diceOccurrences):
+            self.handName = "full house"
             score = 60 + self.breakTies(diceOccurrences, 3)
         # 6 high straight (2,3,4,5,6) is the next best hand
         elif diceOccurrences == [0, 1, 1, 1, 1, 1]:
+            self.handName = "six high straight"
             score = 50
         # 5 high straight (1,2,3,4,5) is the next best hand
         elif diceOccurrences == [1, 1, 1, 1, 1, 0]:
+            self.handName = "five high straight"
             score = 40
         # 3 of a kind is the next best hand, the die number of the 3 of a kind breaks ties
         elif 3 in diceOccurrences:
+            self.handName = "three of a kind"
             score = 30 + self.breakTies(diceOccurrences, 3)
         # 2 pairs is the next best hand, the die number of the higher pair breaks ties
         elif diceOccurrences.count(2) == 2:
+            self.handName = "two pairs"
             score = 20 + self.breakTies(diceOccurrences, 2)
         # 2 of a kind is the next best hand, the die number of the 2 of a kind breaks ties
         elif 2 in diceOccurrences:
+            self.handName = "pair"
             score = 10 + self.breakTies(diceOccurrences, 2)
         # If nothing else, the score is determined by the highest die in the hand
         else:
+            self.handName = "nothing"
             score = self.breakTies(diceOccurrences, 1)
 
         self.value = score
