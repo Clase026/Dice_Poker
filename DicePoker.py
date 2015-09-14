@@ -77,7 +77,8 @@ def chooseDiceToDrop(player):
                 print(str.format('{0}. {1}', i, die.value))
                 i = i + 1
         print(str.format('{0}. Keep the rest', i))
-        dieToDrop = input()
+        strdieToDrop = raw_input()
+        dieToDrop = validateInteger(strdieToDrop, 1, 6)
         if (dieToDrop == i):
             choosingDiceToDrop = False
         else:
@@ -105,18 +106,18 @@ def validateYesNo(stringToValidate):
     return stringToValidate
 
 
-def validateInteger(stringToValidate):
+def validateInteger(stringToValidate, minimumValue = 0, maximumValue = 100):
     Validated = False
     SendMessage = False
     while Validated == False:
         if SendMessage:
-            stringToValidate = raw_input('Please enter a positive integer ')
+            stringToValidate = raw_input(str.format('Please enter an integer number between {0} and {1}: ', minimumValue, maximumValue))
         try:
             intToValidate = int(stringToValidate)
         except ValueError:
             SendMessage = True
             continue
-        if intToValidate < 0:
+        if (intToValidate < minimumValue) or (intToValidate > maximumValue) :
             SendMessage = True
         else:
             Validated = True
